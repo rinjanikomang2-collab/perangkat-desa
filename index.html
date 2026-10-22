@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lab Maya Perangkat Desa - SD N 2 Kedewatan</title>
+    <style>
+        /* ================= RESET & CORE 16:9 CONTAINER STYLES ================= */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Lock 16:9 Aspect Ratio Landscape Container without scrolling */
+        .app-container {
+            width: 100vw;
+            height: 56.25vw; /* 16:9 ratio */
+            max-height: 100vh;
+            max-width: 177.78vh; /* 16:9 ratio */
+            position: relative;
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 40%, #004d40 100%);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: #333;
+        }
+
+        /* Responsive typography scale */
+        @media (max-height: 500px) {
+            .app-container { font-size: 11px; }
+        }
+        @media (min-height: 501px) and (max-height: 750px) {
+            .app-container { font-size: 13px; }
+        }
+        @media (min-height: 751px) {
+            .app-container { font-size: 15px; }
+        }
+
+        /* ================= SPLASH SCREEN ================= */
+        #splashScreen {
+            position: absolute;
+            inset: 0;
+            z-index: 100;
+            background: linear-gradient(135deg, #1b5e20 0%, #388e3c 50%, #fbc02d 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .splash-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px 35px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border: 4 border-color: #fbc02d;
+            max-width: 600px;
+            width: 90%;
+            color: #1b5e20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .splash-title {
+            font-size: 1.8em;
+            font-weight: 900;
+            color: #1b5e20;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .splash-subtitle {
+            font-size: 1.05em;
+            font-weight: 700;
+            color: #c62828;
+            background: #ffe0b2;
+            padding: 4px 16px;
+            border-radius: 20px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 16px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+            border: 2px solid #a5d6a7;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #81c784);
+            transition: width 0.3s ease;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #f57f17 0%, #ffb300 100%);
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: 900;
+            padding: 12px 32px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(245, 127, 23, 0.4);
+            transition: all 0.2s ease;
+            display: none;
+            letter-spacing: 0.5px;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #ffb300 0%, #f57f17 100%);
+        }
+
+        /* ================= HEADER & NAV TABS ================= */
+        header {
+            background: #1b5e20;
+            color: #fff;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid #fbc02d;
+            height: 11%;
+            min-height: 48px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title h1 {
+            font-size: 1.15em;
+            font-weight: 800;
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        .header-title p {
+            font-size: 0.75em;
+            color: #a5d6a7;
+        }
+
+        .global-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ctrl-btn {
+            background: #2e7d32;
+            color: #fff;
+            border: 1px solid #81c784;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .ctrl-btn:hover {
+            background: #388e3c;
+            transform: translateY(-1px);
+        }
+
+        .ctrl-btn-reset {
+            background: #c62828;
+            border-color: #ef9a9a;
+        }
+        .ctrl-btn-reset:hover {
+            background: #b71c1c;
+        }
+
+        /* NAV TABS BAR */
+        nav {
+            background: #2e7d32;
+            display: flex;
+            height: 8%;
+            min-height: 36px;
+            border-bottom: 2px solid #1b5e20;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #e8f5e9;
+            font-weight: 700;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-right: 1px solid #388e3c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .tab-btn.active {
+            background: #fff;
+            color: #1b5e20;
+            font-weight: 900;
+            border-top: 3px solid #fbc02d;
+            border-bottom: none;
+        }
+
+        /* ================= MAIN CONTENT VIEWPORT ================= */
+        main {
+            flex: 1;
+            position: relative;
+            background: #f4fbf7;
+            overflow: hidden;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-pane {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-pane.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ================= TAB 1: TEORI (STRUKTUR ORGANISASI) ================= */
+        .teori-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            height: 100%;
+        }
+
+        .teori-card {
+            background: #fff;
+            border: 2px solid #a5d6a7;
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .teori-card:hover {
+            transform: translateY(-3px);
+            border-color: #2e7d32;
+            box-shadow: 0 8px 16px rgba(46,125,50,0.2);
+            background: #f1f8e9;
+        }
+
+        .teori-icon {
+            font-size: 2.2em;
+            background: #e8f5e9;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #81c784;
+        }
+
+        .teori-title {
+            font-size: 0.95em;
+            font-weight: 800;
+            color: #1b5e20;
+        }
+
+        .teori-subtitle {
+            font-size: 0.75em;
+            color: #555;
+            margin-top: 2px;
+        }
+
+        .teori-click-hint {
+            font-size: 0.7em;
+            color: #2e7d32;
+            font-weight: 700;
+            background: #e8f5e9;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        /* ================= TAB 2: PROSEDUR ================= */
+        .prosedur-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            height: 100%;
+            align-items: center;
+        }
+
+        .step-card {
+            background: #fff;
+            border: 2px solid #ffe0b2;
+            border-radius: 16px;
+            padding: 14px;
+            height: 90%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+            justify-content: flex-start;
+            gap: 8px;
+            position: relative;
+        }
+
+        .step-num {
+            background: #f57f17;
+            color: #fff;
+            font-weight: 900;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        }
+
+        .step-title {
+            font-size: 0.9em;
+            font-weight: 800;
+            color: #e65100;
+        }
+
+        .step-desc {
+            font-size: 0.75em;
+            color: #424242;
+            line-height: 1.3;
+        }
+
+        /* ================= TAB 3: SIMULASI MISI WARGA ================= */
+        .sim-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            gap: 8px;
+        }
+
+        .sim-header {
+            background: #fff;
+            padding: 6px 12px;
+            border-radius: 10px;
+            border: 2px solid #a5d6a7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sim-badge {
+            background: #ffb300;
+            color: #000;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+
+        .sim-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .warga-card {
+            background: #fff;
+            border: 3px solid #ffb300;
+            border-radius: 16px;
+            padding: 12px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+            gap: 6px;
+        }
+
+        .warga-avatar {
+            font-size: 3em;
+            background: #fffde7;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fbc02d;
+        }
+
+        .warga-dialog {
+            background: #fffde7;
+            border: 1px solid #ffe082;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            color: #5d4037;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .target-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            height: 100%;
+        }
+
+        .target-btn {
+            background: #fff;
+            border: 2px solid #81c784;
+            border-radius: 12px;
+            padding: 8px;
+            font-weight: 800;
+            font-size: 0.8em;
+            color: #1b5e20;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .target-btn:hover {
+            background: #e8f5e9;
+            border-color: #2e7d32;
+            transform: scale(1.02);
+        }
+
+        /* ================= TAB 4: LKPD & KUIS ================= */
+        .lkpd-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            height: 100%;
+        }
+
+        .quiz-card {
+            background: #fff;
+            border: 2px solid #81c784;
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .quiz-question {
+            font-size: 0.85em;
+            font-weight: 800;
+            color: #1b5e20;
+            background: #e8f5e9;
+            padding: 8px 10px;
+            border-radius: 8px;
+            line-height: 1.3;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin: 8px 0;
+        }
+
+        .opt-btn {
+            background: #fafafa;
+            border: 1.5px solid #e0e0e0;
+            padding: 6px 10px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.75em;
+            font-weight: 700;
+            cursor: pointer;
+            color: #333;
+            transition: all 0.15s;
+        }
+
+        .opt-btn:hover {
+            background: #f1f8e9;
+            border-color: #a5d6a7;
+        }
+
+        .opt-btn.correct {
+            background: #c8e6c9 !important;
+            border-color: #4caf50 !important;
+            color: #1b5e20 !important;
+        }
+
+        .opt-btn.wrong {
+            background: #ffcdd2 !important;
+            border-color: #e53935 !important;
+            color: #b71c1c !important;
+        }
+
+        .cert-card {
+            background: #fffde7;
+            border: 3px double #fbc02d;
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        .cert-title {
+            font-size: 0.9em;
+            font-weight: 900;
+            color: #f57f17;
+            border-bottom: 2px solid #ffe082;
+            padding-bottom: 4px;
+            width: 100%;
+        }
+
+        .cert-score {
+            font-size: 2em;
+            font-weight: 900;
+            color: #2e7d32;
+        }
+
+        /* ================= TAB 5: PENGEMBANG ================= */
+        .dev-container {
+            background: #fff;
+            border: 2px solid #a5d6a7;
+            border-radius: 14px;
+            padding: 14px 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .dev-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 2px solid #e8f5e9;
+            padding-bottom: 8px;
+        }
+
+        .dev-avatar {
+            font-size: 2.5em;
+            background: #e8f5e9;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #81c784;
+        }
+
+        .dev-info h3 {
+            font-size: 1em;
+            font-weight: 800;
+            color: #1b5e20;
+        }
+
+        .dev-info p {
+            font-size: 0.75em;
+            color: #666;
+        }
+
+        .dev-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.75em;
+        }
+
+        .dev-box {
+            background: #f1f8e9;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #c8e6c9;
+        }
+
+        .dev-box h4 {
+            font-weight: 800;
+            color: #2e7d32;
+            margin-bottom: 4px;
+        }
+
+        /* ================= MODAL POPUP ================= */
+        .modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 90;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px 20px;
+            max-width: 450px;
+            width: 85%;
+            border: 3px solid #2e7d32;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #e8f5e9;
+            padding-bottom: 6px;
+        }
+
+        .modal-title {
+            font-size: 1em;
+            font-weight: 800;
+            color: #1b5e20;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .modal-close {
+            background: #e53935;
+            color: #fff;
+            border: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            font-size: 0.8em;
+            color: #424242;
+            line-height: 1.4;
+        }
+
+        .modal-body strong {
+            color: #1b5e20;
+        }
+
+        /* Utility classes */
+        .feedback-msg {
+            font-size: 0.75em;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+            text-align: center;
+            display: none;
+        }
+        .feedback-success {
+            background: #c8e6c9;
+            color: #1b5e20;
+        }
+        .feedback-fail {
+            background: #ffcdd2;
+            color: #b71c1c;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MAIN APP CONTAINER (LOCKED TO 16:9 RATIO) -->
+    <div class="app-container" id="appContainer">
+
+        <!-- SPLASH SCREEN -->
+        <div id="splashScreen">
+            <div class="splash-card">
+                <div style="font-size: 2.5em;">🏛️🌴</div>
+                <h1 class="splash-title">LAB MAYA INTERAKTIF</h1>
+                <div class="splash-subtitle">Materi Perangkat Desa • Kelas 4 (Fase B)</div>
+                <p style="font-size: 0.85em; color: #555; font-weight: 600;">SD N 2 Kedewatan - Ubud, Gianyar</p>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="splashProgress"></div>
+                </div>
+                <p id="loadingText" style="font-size: 0.75em; color: #777; font-weight: 700;">Menyiapkan Simulator...</p>
+
+                <button class="start-btn" id="startBtn" onclick="startApp()">
+                    MULAI PETUALANGAN 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- HEADER CONTROL BAR -->
+        <header>
+            <div class="header-title">
+                <div style="font-size: 1.5em;">🏛️</div>
+                <div>
+                    <h1>LAB MAYA PERANGKAT DESA</h1>
+                    <p>SD N 2 KEDEWATAN • FASE B KELAS 4</p>
+                </div>
+            </div>
+
+            <div class="global-controls">
+                <button class="ctrl-btn" onclick="toggleAudio()" id="audioBtn">
+                    <span id="audioIcon">🔊</span> Audio
+                </button>
+                <button class="ctrl-btn" onclick="toggleFullscreen()">
+                    📺 Fullscreen
+                </button>
+                <button class="ctrl-btn ctrl-btn-reset" onclick="confirmReset()">
+                    🔄 RESET
+                </button>
+            </div>
+        </header>
+
+        <!-- NAVIGATION TABS -->
+        <nav>
+            <button class="tab-btn active" onclick="switchTab('teori')" id="tab-teori">
+                <span>📚</span> 1. TEORI
+            </button>
+            <button class="tab-btn" onclick="switchTab('prosedur')" id="tab-prosedur">
+                <span>📋</span> 2. PROSEDUR
+            </button>
+            <button class="tab-btn" onclick="switchTab('simulasi')" id="tab-simulasi">
+                <span>🎯</span> 3. SIMULASI
+            </button>
+            <button class="tab-btn" onclick="switchTab('lkpd')" id="tab-lkpd">
+                <span>📝</span> 4. LKPD & KUIS
+            </button>
+            <button class="tab-btn" onclick="switchTab('pengembang')" id="tab-pengembang">
+                <span>👨‍🏫</span> 5. PENGEMBANG
+            </button>
+        </nav>
+
+        <!-- MAIN VIEWPORT CONTENT -->
+        <main>
+
+            <!-- TAB 1: TEORI -->
+            <div class="tab-pane active" id="pane-teori">
+                <div class="teori-grid">
+                    <div class="teori-card" onclick="openDetailModal('kades')">
+                        <div class="teori-icon">👨‍💼</div>
+                        <div>
+                            <div class="teori-title">Kepala Desa (Kades)</div>
+                            <div class="teori-subtitle">Pemimpin Utama Pemerintah Desa</div>
+                        </div>
+                        <span class="teori-click-hint">Klik Tugas & Fungsi ➔</span>
+                    </div>
+
+                    <div class="teori-card" onclick="openDetailModal('sekdes')">
+                        <div class="teori-icon">👩‍💻</div>
+                        <div>
+                            <div class="teori-title">Sekretaris Desa</div>
+                            <div class="teori-subtitle">Pimpinan Administrasi Desa</div>
+                        </div>
+                        <span class="teori-click-hint">Klik Tugas & Fungsi ➔</span>
+                    </div>
+
+                    <div class="teori-card" onclick="openDetailModal('kaur')">
+                        <div class="teori-icon">📊</div>
+                        <div>
+                            <div class="teori-title">Kepala Urusan (KAUR)</div>
+                            <div class="teori-subtitle">Urusan Keuangan & Umum</div>
+                        </div>
+                        <span class="teori-click-hint">Klik Tugas & Fungsi ➔</span>
+                    </div>
+
+                    <div class="teori-card" onclick="openDetailModal('kasi')">
+                        <div class="teori-icon">🤝</div>
+                        <div>
+                            <div class="teori-title">Kepala Seksi (KASI)</div>
+                            <div class="teori-subtitle">Pelayanan & Kesejahteraan</div>
+                        </div>
+                        <span class="teori-click-hint">Klik Tugas & Fungsi ➔</span>
+                    </div>
+
+                    <div class="teori-card" onclick="openDetailModal('kadus')">
+                        <div class="teori-icon">🏡</div>
+                        <div>
+                            <div class="teori-title">Kepala Dusun / Banjar</div>
+                            <div class="teori-subtitle">Pengayom Wilayah Banjar</div>
+                        </div>
+                        <span class="teori-click-hint">Klik Tugas & Fungsi ➔</span>
+                    </div>
+
+                    <div class="teori-card" onclick="openDetailModal('bpd')">
+                        <div class="teori-icon">🏛️</div>
+                        <div>
+                            <div class="teori-title">BPD (Badan Desa)</div>
+                            <div class="teori-subtitle">Wakil Aspirasi Warga</div>
+                        </div>
+                        <span class="teori-click-hint">Klik Tugas & Fungsi ➔</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: PROSEDUR -->
+            <div class="tab-pane" id="pane-prosedur">
+                <div class="prosedur-container">
+                    <div class="step-card">
+                        <div class="step-num">1</div>
+                        <div class="step-title">Pelajari Teori</div>
+                        <div class="step-desc">Buka Tab 1 (Teori) dan klik setiap figur perangkat desa untuk memahami tugas dan fungsi pelayanan warga.</div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-num">2</div>
+                        <div class="step-title">Jalankan Simulasi</div>
+                        <div class="step-desc">Masuk ke Tab 3 (Simulasi). Baca masalah yang dialami warga Kedewatan, lalu bantu arahkan ke pejabat yang tepat.</div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-num">3</div>
+                        <div class="step-title">Isi LKPD & Kuis</div>
+                        <div class="step-desc">Kerjakan kuis di Tab 4 untuk menguji pemahamanmu. Skor akan dihitung secara otomatis!</div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-num">4</div>
+                        <div class="step-title">Cetak Hasil</div>
+                        <div class="step-desc">Dapatkan Sertifikat Bukti Belajar digital atas namamu sebagai tanda kelulusan materi Fase B.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: SIMULASI MISI WARGA -->
+            <div class="tab-pane" id="pane-simulasi">
+                <div class="sim-container">
+                    <div class="sim-header">
+                        <span style="font-weight: 800; color: #1b5e20; font-size: 0.85em;">🎯 MISI BANTU WARGA KEDEWATAN</span>
+                        <span class="sim-badge" id="simProgress">Misi 1 / 4</span>
+                    </div>
+
+                    <div class="sim-body">
+                        <!-- Warga Problem Card -->
+                        <div class="warga-card">
+                            <div class="warga-avatar" id="simAvatar">👨‍🌾</div>
+                            <div style="font-weight: 800; color: #1b5e20; font-size: 0.9em;" id="simNama">Pak Wayan</div>
+                            <div class="warga-dialog" id="simDialog">
+                                "Saya ingin mengajukan Surat Keterangan Usaha (SKU) untuk kelompok tani Kedewatan. Siapa pejabat desa yang bertugas melayani saya?"
+                            </div>
+                            <div class="feedback-msg" id="simFeedback"></div>
+                        </div>
+
+                        <!-- Options Target Buttons -->
+                        <div class="target-grid" id="simOptions">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: LKPD & KUIS -->
+            <div class="tab-pane" id="pane-lkpd">
+                <div class="lkpd-container">
+                    <!-- Quiz Box -->
+                    <div class="quiz-card">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <span style="font-weight: 800; color: #2e7d32; font-size: 0.8em;">📝 KUIS KUALIFIKASI FASE B</span>
+                                <span style="font-weight: 900; color: #f57f17; font-size: 0.8em;" id="quizNumText">Soal 1/5</span>
+                            </div>
+                            <div class="quiz-question" id="quizQuestionText">
+                                Loading soal...
+                            </div>
+                        </div>
+
+                        <div class="quiz-options" id="quizOptionsContainer">
+                            <!-- Options generated dynamically -->
+                        </div>
+
+                        <div class="feedback-msg" id="quizFeedback"></div>
+
+                        <button class="ctrl-btn" style="background: #2e7d32; align-self: flex-end; display: none;" id="quizNextBtn" onclick="nextQuizQuestion()">
+                            Soal Berikutnya ➔
+                        </button>
+                    </div>
+
+                    <!-- Certificate / LKPD Result -->
+                    <div class="cert-card">
+                        <div class="cert-title">🏆 BUKTI BELAJAR SISWA</div>
+                        
+                        <div style="width: 100%; text-align: left;">
+                            <label style="font-size: 0.7em; font-weight: 800; color: #555;">Nama Siswa:</label>
+                            <input type="text" id="studentName" value="I Wayan Agus" style="width: 100%; padding: 4px 8px; border: 1.5px solid #ffb300; border-radius: 6px; font-weight: 800; color: #1b5e20; font-size: 0.8em; outline: none;" oninput="updateCertName()">
+                        </div>
+
+                        <div style="margin: 4px 0;">
+                            <div style="font-size: 0.7em; color: #777; font-weight: 700;">NILAI EVALUASI</div>
+                            <div class="cert-score" id="certScoreDisplay">0</div>
+                            <div style="font-size: 0.75em; color: #f57f17; font-weight: 800;" id="certStars">⭐⭐⭐⭐⭐</div>
+                        </div>
+
+                        <div style="font-size: 0.65em; color: #555; line-height: 1.2;">
+                            Telah menyelesaikan modul Lab Maya Perangkat Desa SD N 2 Kedewatan.
+                        </div>
+
+                        <button class="ctrl-btn" style="background: #f57f17; border-color: #ffb300; width: 100%; justify-content: center;" onclick="printCertificate()">
+                            🖨️ Cetak / Simpan Bukti
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: PENGEMBANG -->
+            <div class="tab-pane" id="pane-pengembang">
+                <div class="dev-container">
+                    <div class="dev-header">
+                        <div class="dev-avatar">🏫</div>
+                        <div class="dev-info">
+                            <h3>TIM PENGEMBANG LAB MAYA</h3>
+                            <p>Guru & Tim Inovasi Digital SD N 2 Kedewatan</p>
+                        </div>
+                    </div>
+
+                    <div class="dev-details">
+                        <div class="dev-box">
+                            <h4>📍 Identitas Sekolah</h4>
+                            <p><strong>Sekolah:</strong> SD N 2 Kedewatan</p>
+                            <p><strong>Kecamatan:</strong> Ubud</p>
+                            <p><strong>Kabupaten:</strong> Gianyar, Bali</p>
+                        </div>
+
+                        <div class="dev-box">
+                            <h4>🎯 Target Kurikulum</h4>
+                            <p><strong>Mata Pelajaran:</strong> IPAS / PPKn</p>
+                            <p><strong>Fase / Kelas:</strong> Fase B / Kelas 4</p>
+                            <p><strong>Materi:</strong> Struktur Perangkat Desa</p>
+                        </div>
+                    </div>
+
+                    <div class="dev-box" style="margin-top: 4px;">
+                        <h4>💡 Capaian Pembelajaran (CP)</h4>
+                        <p>Siswa mampu mengidentifikasi struktur organisasi pemerintahan desa, memahami fungsi dan tugas masing-masing perangkat desa, serta menunjukkan sikap menghargai pelayanan publik di lingkungan sekitar.</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODAL POPUP DETAIL TEORI -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">
+                    <span>👨‍💼</span> Kepala Desa
+                </div>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content injected dynamically -->
+            </div>
+            <button class="ctrl-btn" style="background: #2e7d32; justify-content: center; width: 100%;" onclick="closeModal()">
+                Saya Paham! 👍
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT & WEB AUDIO SYNTH ================= -->
+    <script>
+        /* ================= 1. WEB AUDIO API SYNTHESIZER (NO EXTERNAL AUDIO) ================= */
+        let audioCtx = null;
+        let isAudioMuted = false;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (isAudioMuted) return;
+            initAudio();
+
+            try {
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(450, now);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.04);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.04);
+                    osc.start(now);
+                    osc.stop(now + 0.04);
+                } 
+                else if (type === 'correct') {
+                    const freqs = [523.25, 659.25, 783.99]; // C5, E5, G5
+                    freqs.forEach((f, idx) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.type = 'triangle';
+                        o.frequency.setValueAtTime(f, now + (idx * 0.07));
+                        g.gain.setValueAtTime(0.2, now + (idx * 0.07));
+                        g.gain.exponentialRampToValueAtTime(0.01, now + (idx * 0.07) + 0.12);
+                        o.start(now + (idx * 0.07));
+                        o.stop(now + (idx * 0.07) + 0.12);
+                    });
+                } 
+                else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(160, now);
+                    osc.frequency.linearRampToValueAtTime(100, now + 0.18);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.18);
+                    osc.start(now);
+                    osc.stop(now + 0.18);
+                }
+                else if (type === 'reset') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.linearRampToValueAtTime(200, now + 0.25);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                }
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
+        }
+
+        function toggleAudio() {
+            isAudioMuted = !isAudioMuted;
+            document.getElementById('audioIcon').innerText = isAudioMuted ? '🔇' : '🔊';
+            if (!isAudioMuted) playSound('click');
+        }
+
+        function toggleFullscreen() {
+            playSound('click');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(()=>{});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        /* ================= 2. SPLASH SCREEN & APP INIT ================= */
+        window.onload = function() {
+            let progress = 0;
+            const pBar = document.getElementById('splashProgress');
+            const lText = document.getElementById('loadingText');
+            const sBtn = document.getElementById('startBtn');
+
+            const interval = setInterval(() => {
+                progress += 25;
+                pBar.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    lText.innerText = 'Siap Digunakan!';
+                    sBtn.style.display = 'block';
+                }
+            }, 120);
+        };
+
+        function startApp() {
+            playSound('correct');
+            document.getElementById('splashScreen').style.display = 'none';
+            initSimulasi();
+            initQuiz();
+        }
+
+        /* ================= 3. NAVIGATION TAB SYSTEM ================= */
+        function switchTab(tabId) {
+            playSound('click');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.getElementById(`pane-${tabId}`).classList.add('active');
+        }
+
+        /* ================= 4. TAB 1 TEORI MODAL DATA ================= */
+        const detailData = {
+            'kades': {
+                title: '👨‍💼 Kepala Desa (Kades)',
+                text: '<strong>Tugas Utama:</strong> Memimpin penyelenggaraan pemerintahan desa, membina kehidupan masyarakat, serta memelihara ketentraman warga.<br><br><strong>Contoh di Kedewatan:</strong> Memimpin musyawarah pembangunan fasilitas desa.'
+            },
+            'sekdes': {
+                title: '👩‍💻 Sekretaris Desa (Sekdes)',
+                text: '<strong>Tugas Utama:</strong> Memimpin sekretariat desa, mengelola administrasi, serta menyusun rancangan peraturan dan anggaran desa.<br><br><strong>Contoh di Kedewatan:</strong> Mengurus surat resmi dan keuangan desa.'
+            },
+            'kaur': {
+                title: '📊 Kepala Urusan (KAUR)',
+                text: '<strong>Tugas Utama:</strong> Membantu Sekretaris Desa dalam urusan administrasi teknis seperti keuangan, perencanaan, dan umum.<br><br><strong>Contoh di Kedewatan:</strong> Mengatur belanja perlengkapan kantor desa.'
+            },
+            'kasi': {
+                title: '🤝 Kepala Seksi (KASI)',
+                text: '<strong>Tugas Utama:</strong> Pelaksana teknis lapangan di bidang pelayanan, kesejahteraan, dan pemerintahan.<br><br><strong>Contoh di Kedewatan:</strong> Melayani pembuatan surat keterangan warga.'
+            },
+            'kadus': {
+                title: '🏡 Kepala Dusun / Banjar',
+                text: '<strong>Tugas Utama:</strong> Membantu Kepala Desa dalam mengayomi dan mengurus warga di wilayah dusun/banjar setempat.<br><br><strong>Contoh di Kedewatan:</strong> Mengoordinasikan kerja bakti warga banjar.'
+            },
+            'bpd': {
+                title: '🏛️ BPD (Badan Permusyawaratan Desa)',
+                text: '<strong>Tugas Utama:</strong> Menampung dan menyalurkan aspirasi (usulan) warga serta bermusyawarah membuat Peraturan Desa bersama Kades.<br><br><strong>Contoh di Kedewatan:</strong> Menyampaikan usulan warga terkait perbaikan jalan.'
+            }
+        };
+
+        function openDetailModal(key) {
+            playSound('click');
+            const item = detailData[key];
+            if (!item) return;
+
+            document.getElementById('modalTitle').innerHTML = item.title;
+            document.getElementById('modalBody').innerHTML = item.text;
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            playSound('click');
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        /* ================= 5. TAB 3 SIMULASI MISI WARGA ================= */
+        const simData = [
+            {
+                nama: "Pak Wayan (Petani Kedewatan)",
+                avatar: "👨‍🌾",
+                dialog: "\"Saya butuh Surat Keterangan Usaha (SKU) untuk modal ternak. Siapa pejabat desa yang melayani surat ini?\"",
+                target: "Kasi Pelayanan",
+                options: ["Kasi Pelayanan", "Kepala Dusun", "BPD", "Kaur Keuangan"]
+            },
+            {
+                nama: "Ibu Ni Luh (Tokoh Warga)",
+                avatar: "👩‍🏫",
+                dialog: "\"Warga banjar ingin mengusulkan perbaikan penerangan jalan desa. Ke lembaga mana kami menyalurkan aspirasi ini?\"",
+                target: "BPD",
+                options: ["KAUR Umum", "BPD", "Sekretaris Desa", "Kasi Kesra"]
+            },
+            {
+                nama: "Pak Made (Pengurus Banjar)",
+                avatar: "🧑",
+                dialog: "\"Lingkungan banjar kami mau mengadakan gotong royong. Siapa pemimpin wilayah banjar yang mengoordinasikan warga?\"",
+                target: "Kepala Dusun",
+                options: ["Kepala Desa", "Kepala Dusun", "Sekretaris Desa", "Kasi Pelayanan"]
+            },
+            {
+                nama: "Ibu Ketut (Kader Posyandu)",
+                avatar: "👩‍⚕️",
+                dialog: "\"Siapakah pemimpin tertinggi di desa yang mengesahkan program kerja tahunan Desa Kedewatan?\"",
+                target: "Kepala Desa",
+                options: ["Kepala Desa", "KAUR Umum", "Kasi Pelayanan", "Kadus"]
+            }
+        ];
+
+        let currentSimIdx = 0;
+
+        function initSimulasi() {
+            const data = simData[currentSimIdx];
+            document.getElementById('simProgress').innerText = `Misi ${currentSimIdx + 1} / ${simData.length}`;
+            document.getElementById('simNama').innerText = data.nama;
+            document.getElementById('simAvatar').innerText = data.avatar;
+            document.getElementById('simDialog').innerText = data.dialog;
+
+            const fb = document.getElementById('simFeedback');
+            fb.style.display = 'none';
+
+            const optsContainer = document.getElementById('simOptions');
+            optsContainer.innerHTML = '';
+
+            data.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'target-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkSimAnswer(opt, data.target);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function checkSimAnswer(selected, target) {
+            const fb = document.getElementById('simFeedback');
+            fb.style.display = 'block';
+
+            if (selected === target) {
+                playSound('correct');
+                fb.className = 'feedback-msg feedback-success';
+                fb.innerText = '✅ Tepat Sekali! Kamu berhasil membantu warga.';
+
+                setTimeout(() => {
+                    currentSimIdx++;
+                    if (currentSimIdx < simData.length) {
+                        initSimulasi();
+                    } else {
+                        alert('🎉 Luar biasa! Kamu telah menyelesaikan semua misi warga Desa Kedewatan!');
+                        currentSimIdx = 0;
+                        initSimulasi();
+                        switchTab('lkpd');
+                    }
+                }, 1200);
+            } else {
+                playSound('wrong');
+                fb.className = 'feedback-msg feedback-fail';
+                fb.innerText = '❌ Belum tepat. Coba ingat kembali tugas perangkat desa!';
+            }
+        }
+
+        /* ================= 6. TAB 4 LKPD & KUIS ================= */
+        const quizData = [
+            {
+                q: "1. Pemimpin tertinggi di tingkat desa yang dipilih langsung oleh warga adalah...",
+                opts: ["A. Sekretaris Desa", "B. Kepala Desa", "C. Camat", "D. Kepala Dusun"],
+                ans: 1
+            },
+            {
+                q: "2. Pejabat desa yang memimpin administrasi dan sekretariat desa yaitu...",
+                opts: ["A. KAUR", "B. BPD", "C. Sekretaris Desa", "D. KASI"],
+                ans: 2
+            },
+            {
+                q: "3. Lembaga desa yang bertugas menampung aspirasi warga adalah...",
+                opts: ["A. BPD", "B. Puskesmas", "C. Kepolisian", "D. Kasi Pelayanan"],
+                ans: 0
+            },
+            {
+                q: "4. Ibu Nyoman mengurus pembuataan surat pengantar di desa. Ia dilayani oleh...",
+                opts: ["A. Kadus", "B. Kasi Pelayanan", "C. Kaur Keuangan", "D. Kepala Desa"],
+                ans: 1
+            },
+            {
+                q: "5. Perangkat desa yang mengayomi warga di tingkat Dusun/Banjar adalah...",
+                opts: ["A. Kepala Dusun/Banjar", "B. Sekdes", "C. BPD", "D. Kaur"],
+                ans: 0
+            }
+        ];
+
+        let currentQuizIdx = 0;
+        let quizScore = 0;
+
+        function initQuiz() {
+            const q = quizData[currentQuizIdx];
+            document.getElementById('quizNumText').innerText = `Soal ${currentQuizIdx + 1}/${quizData.length}`;
+            document.getElementById('quizQuestionText').innerText = q.q;
+
+            document.getElementById('quizFeedback').style.display = 'none';
+            document.getElementById('quizNextBtn').style.display = 'none';
+
+            const optsContainer = document.getElementById('quizOptionsContainer');
+            optsContainer.innerHTML = '';
+
+            q.opts.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn';
+                btn.innerText = optText;
+                btn.onclick = () => checkQuizAnswer(idx, q.ans, btn);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(selectedIdx, correctIdx, btnElement) {
+            const allBtns = document.querySelectorAll('.opt-btn');
+            allBtns.forEach(b => b.onclick = null);
+
+            const fb = document.getElementById('quizFeedback');
+            fb.style.display = 'block';
+
+            if (selectedIdx === correctIdx) {
+                playSound('correct');
+                btnElement.classList.add('correct');
+                fb.className = 'feedback-msg feedback-success';
+                fb.innerText = '✨ Jawaban Benar! (+20 Poin)';
+                quizScore += 20;
+            } else {
+                playSound('wrong');
+                btnElement.classList.add('wrong');
+                allBtns[correctIdx].classList.add('correct');
+                fb.className = 'feedback-msg feedback-fail';
+                fb.innerText = '💡 Jawaban kurang tepat.';
+            }
+
+            document.getElementById('certScoreDisplay').innerText = quizScore;
+            document.getElementById('quizNextBtn').style.display = 'block';
+        }
+
+        function nextQuizQuestion() {
+            playSound('click');
+            currentQuizIdx++;
+            if (currentQuizIdx < quizData.length) {
+                initQuiz();
+            } else {
+                playSound('correct');
+                alert(`🏁 Kuis Selesai! Skor Evaluasi Kamu: ${quizScore} / 100`);
+                document.getElementById('quizNextBtn').style.display = 'none';
+            }
+        }
+
+        function updateCertName() {
+            // Live update student name
+        }
+
+        function printCertificate() {
+            playSound('click');
+            window.print();
+        }
+
+        /* ================= 7. RESET GLOBAL CONTROL ================= */
+        function confirmReset() {
+            playSound('reset');
+            if (confirm('Apakah kamu yakin ingin mereset seluruh simulasi dan skor evaluasi ke awal?')) {
+                currentSimIdx = 0;
+                currentQuizIdx = 0;
+                quizScore = 0;
+
+                document.getElementById('certScoreDisplay').innerText = '0';
+                initSimulasi();
+                initQuiz();
+                switchTab('teori');
+                alert('🔄 Seluruh data Lab Maya berhasil di-reset!');
+            }
+        }
+    </script>
+</body>
+</html>
